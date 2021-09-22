@@ -17,8 +17,10 @@ def load_data():
     file.close()
 
     real_vectorizer = CountVectorizer()
+    real_vectorizer = real_vectorizer.fit(real)
     real = real_vectorizer.fit_transform(real)
     fake_vectorizer = CountVectorizer()
+    fake_vectorizer = fake_vectorizer.fit(fake)
     fake = fake_vectorizer.fit_transform(fake)
 
     # next split the real and fake data sets into training, testing, and validation sets
