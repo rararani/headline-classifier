@@ -5,16 +5,16 @@ from sklearn.model_selection import train_test_split
 
 CLASS_LABELS = ["real", "fake"]
 
-def load_data(fake_data: str, real_data: str):
+def load_data():
     # parse the fake data first
-    f = open(fake_data, "r")
+    f = open("clean_fake.txt", "r")
     fake = []
     for line in f:
         fake.extend(line.split())
     f.close()
 
     # next parse the real data
-    f = open(real_data, "r")
+    f = open("clean_real.txt", "r")
     real = []
     for line in f:
         real.extend(line.split())
@@ -29,7 +29,7 @@ def load_data(fake_data: str, real_data: str):
     real_train, real_leftover = train_test_split(real, train_size=0.7)
     real_test, real_val = train_test_split(real_leftover, train_size=0.5)
     fake_train, fake_leftoever = train_test_split(fake, train_size=0.7)
-    fake_test, fake_val = train_test_split(fake_leftoever, train_size=0.7)
+    fake_test, fake_val = train_test_split(fake_leftoever, train_size=0.5)
 
     return real_train, real_test, real_val, fake_train, fake_test, fake_val
 
@@ -37,4 +37,4 @@ def load_data(fake_data: str, real_data: str):
 
 
 if __name__ == "__main__":
-    load_data("clean_fake.txt", "clean_real.txt")
+    load_data()
