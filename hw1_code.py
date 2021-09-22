@@ -1,41 +1,43 @@
+from ctypes import sizeof
+from scipy.sparse.sputils import validateaxis
 from sklearn import tree
 from sklearn.datasets import load_iris
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
 
-CLASS_LABELS = ["real", "fake"]
+REAL = "real"
+FAKE = "fake"
 
 def load_data():
-    # parse the fake data first
-    file = open("clean_fake.txt", "r")
-    fake = [headline.strip() for headline in file]
-    file.close()
-
-    # next parse the real data
+    headlines = []
+    labels = []
+    # append all headlines into X, and then append its appropriate label to Y
     file = open("clean_real.txt", "r")
-    real = [headline.strip() for headline in file]
+    headlines.extend([line.strip() for line in file])
+    labels.extend([REAL] * len(headlines))
     file.close()
 
-    real_train, real_leftover = train_test_split(real, train_size=0.7)
-    real_test, real_val = train_test_split(real_leftover, train_size=0.5)
-    fake_train, fake_leftover = train_test_split(fake, train_size=0.7)
-    fake_test, fake_val = train_test_split(fake_leftover, train_size=0.5)
+    prev_num_headlines = len(headlines)
 
-    vectorizer = CountVectorizer()
-    real_train = vectorizer.fit_transform(real_train)
-    real_test = vectorizer.transform(real_test)
-    real_val = vectorizer.transform(real_val)
+    file = open("clean_fake.txt", "r")
+    headlines.extend([line.strip() for line in file])
+    labels.extend([FAKE] * (len(headlines) - prev_num_headlines))
+    file.close()
 
-    vectorizer1 = CountVectorizer()
-    fake_train = vectorizer1.fit_transform(fake_train)
-    fake_test = vectorizer1.transform(fake_test)
-    fake_val = vectorizer1.transform(fake_val)
+    # now we want to split the data into training, test, and validation
+    h_train, h_test, y_train, y_test = train_test_split(headlines, labels, train_size=0.7)
+    h_test, h_validation, y_test, y_validation = train_test_split(h_test, y_test, train_size=0.5)
 
+    # now vectorize the data
+    vectorizer = TfidfVectorizer()
+    h_train_vectorized = vectorizer.fit_transform(h_train)
+    h_test_vectorized = vectorizer.transform(h_test)
+    h_val_vectorized = vectorizer.transform(h_validation)
 
-    return real_train, real_test, real_val, fake_train, fake_test, fake_val
+    return h_train_vectorized, h_test_vectorized, h_val_vectorized, y_train, y_test, y_validation
 
     
 
 
 if __name__ == "__main__":
-    load_data()
+    print(load_data())
