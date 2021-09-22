@@ -1,7 +1,7 @@
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
-from sklearn import metrics
+import graphviz
 
 REAL = "real"
 FAKE = "fake"
@@ -117,7 +117,6 @@ def select_data():
     t10 = t10.fit(h_train, y_train)
     labels_predicted = t10.predict(h_val)
     print("Accuracy of T10:", accuracy_calculator(y_val, labels_predicted))
-
 
     
 
