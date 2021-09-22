@@ -1,9 +1,11 @@
 from ctypes import sizeof
+from numpy.lib.function_base import select
 from scipy.sparse.sputils import validateaxis
-from sklearn import tree
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.datasets import load_iris
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
+from sklearn import metrics
 
 REAL = "real"
 FAKE = "fake"
@@ -36,8 +38,17 @@ def load_data():
 
     return h_train_vectorized, h_test_vectorized, h_val_vectorized, y_train, y_test, y_validation
 
+def select_data():
+    h_train, h_test, h_val, y_train, y_test, y_val = load_data()
+    tree = DecisionTreeClassifier()
+    tree = tree.fit(h_train, y_train)
+
+    target_prediction = tree.predict(h_test)
+    print("Accuracy:", metrics.accuracy_score(y_test, target_prediction))
+
+
     
 
 
 if __name__ == "__main__":
-    print(load_data())
+    select_data()
