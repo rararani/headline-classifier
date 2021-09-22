@@ -8,12 +8,12 @@ CLASS_LABELS = ["real", "fake"]
 def load_data():
     # parse the fake data first
     file = open("clean_fake.txt", "r")
-    fake = [headline for headline in file]
+    fake = [headline.strip() for headline in file]
     file.close()
 
     # next parse the real data
     file = open("clean_real.txt", "r")
-    real = [headline for headline in file]
+    real = [headline.strip() for headline in file]
     file.close()
 
     real_vectorizer = CountVectorizer()
