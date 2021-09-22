@@ -7,18 +7,14 @@ CLASS_LABELS = ["real", "fake"]
 
 def load_data():
     # parse the fake data first
-    f = open("clean_fake.txt", "r")
-    fake = []
-    for line in f:
-        fake.extend(line.split())
-    f.close()
+    file = open("clean_fake.txt", "r")
+    fake = [headline for headline in file]
+    file.close()
 
     # next parse the real data
-    f = open("clean_real.txt", "r")
-    real = []
-    for line in f:
-        real.extend(line.split())
-    f.close()
+    file = open("clean_real.txt", "r")
+    real = [headline for headline in file]
+    file.close()
 
     real_vectorizer = CountVectorizer()
     real = real_vectorizer.fit_transform(real)
