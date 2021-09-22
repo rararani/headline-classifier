@@ -1,8 +1,4 @@
-from ctypes import sizeof
-from numpy.lib.function_base import select
-from scipy.sparse.sputils import validateaxis
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.datasets import load_iris
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn import metrics
@@ -40,11 +36,66 @@ def load_data():
 
 def select_data():
     h_train, h_test, h_val, y_train, y_test, y_val = load_data()
-    tree = DecisionTreeClassifier()
-    tree = tree.fit(h_train, y_train)
+    
+    # max_depth = 3, split_criteria = information gain
+    t1 = DecisionTreeClassifier(criterion="entropy", max_depth=3)
+    t1 = t1.fit(h_train, y_train)
+    labels_predicted = t1.predict(h_val)
+    print("Accuracy of T1:", metrics.accuracy_score(y_val, labels_predicted))
 
-    target_prediction = tree.predict(h_test)
-    print("Accuracy:", metrics.accuracy_score(y_test, target_prediction))
+    # max_depth = 3, split criteria = gini
+    t2 = DecisionTreeClassifier(criterion="gini", max_depth=3)
+    t2 = t2.fit(h_train, y_train)
+    labels_predicted = t2.predict(h_val)
+    print("Accuracy of T2:", metrics.accuracy_score(y_val, labels_predicted))
+
+    # max depth = 5, split criteria = entropy
+    t3 = DecisionTreeClassifier(criterion="entropy", max_depth=5)
+    t3 = t3.fit(h_train, y_train)
+    labels_predicted = t3.predict(h_val)
+    print("Accuracy of T3:", metrics.accuracy_score(y_val, labels_predicted))
+
+    # max depth = 5, split criteria = gini
+    t4 = DecisionTreeClassifier(criterion="gini", max_depth=5)
+    t4 = t4.fit(h_train, y_train)
+    labels_predicted = t4.predict(h_val)
+    print("Accuracy of T4:", metrics.accuracy_score(y_val, labels_predicted))
+
+    # max depth = 10, split criteria = entropy
+    t5 = DecisionTreeClassifier(criterion="entropy", max_depth=10)
+    t5 = t5.fit(h_train, y_train)
+    labels_predicted = t5.predict(h_val)
+    print("Accuracy of T5:", metrics.accuracy_score(y_val, labels_predicted))
+
+    # max depth = 10, split criteria = gini
+    t6 = DecisionTreeClassifier(criterion="gini", max_depth=10)
+    t6 = t6.fit(h_train, y_train)
+    labels_predicted = t6.predict(h_val)
+    print("Accuracy of T6:", metrics.accuracy_score(y_val, labels_predicted))
+
+    # max depth = 15, split criteria = entropy
+    t7 = DecisionTreeClassifier(criterion="entropy", max_depth=15)
+    t7 = t7.fit(h_train, y_train)
+    labels_predicted = t7.predict(h_val)
+    print("Accuracy of T7:", metrics.accuracy_score(y_val, labels_predicted))
+
+    # max depth = 15, split criteria = gini
+    t8 = DecisionTreeClassifier(criterion="gini", max_depth=15)
+    t8 = t8.fit(h_train, y_train)
+    labels_predicted = t8.predict(h_val)
+    print("Accuracy of T8:", metrics.accuracy_score(y_val, labels_predicted))
+
+    # max depth = 20, split criteria = entropy
+    t9 = DecisionTreeClassifier(criterion="entropy", max_depth=20)
+    t9 = t9.fit(h_train, y_train)
+    labels_predicted = t9.predict(h_val)
+    print("Accuracy of T9:", metrics.accuracy_score(y_val, labels_predicted))
+
+    # max depth = 20, split criteria = gini
+    t10 = DecisionTreeClassifier(criterion="gini", max_depth=20)
+    t10 = t10.fit(h_train, y_train)
+    labels_predicted = t10.predict(h_val)
+    print("Accuracy of T10:", metrics.accuracy_score(y_val, labels_predicted))
 
 
     
