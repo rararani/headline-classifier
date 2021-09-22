@@ -34,6 +34,27 @@ def load_data():
 
     return h_train_vectorized, h_test_vectorized, h_val_vectorized, y_train, y_test, y_validation
 
+def accuracy_calculator(y_true, y_pred) -> float:
+    '''
+    y_true - the correct set of labels/outputs
+    y_pred - the predicted set of labels/outputs
+    
+    This method compares y_true with y_pred and returns a float score indicating how closely the two match up
+
+    Precondition: len(y_true) == len(y_pred)
+    '''
+    if len(y_true) != len(y_pred):
+        raise ValueError("y_true and y_pred are inconsistent lengths")
+    
+    total = len(y_true)
+    score = 0
+    for i in range(total):
+        if y_true[i] == y_pred[i]:
+            score += 1
+    
+    return score/total
+
+
 def select_data():
     h_train, h_test, h_val, y_train, y_test, y_val = load_data()
     
@@ -41,61 +62,61 @@ def select_data():
     t1 = DecisionTreeClassifier(criterion="entropy", max_depth=3)
     t1 = t1.fit(h_train, y_train)
     labels_predicted = t1.predict(h_val)
-    print("Accuracy of T1:", metrics.accuracy_score(y_val, labels_predicted))
+    print("Accuracy of T1:", accuracy_calculator(y_val, labels_predicted))
 
     # max_depth = 3, split criteria = gini
     t2 = DecisionTreeClassifier(criterion="gini", max_depth=3)
     t2 = t2.fit(h_train, y_train)
     labels_predicted = t2.predict(h_val)
-    print("Accuracy of T2:", metrics.accuracy_score(y_val, labels_predicted))
+    print("Accuracy of T2:", accuracy_calculator(y_val, labels_predicted))
 
     # max depth = 5, split criteria = entropy
     t3 = DecisionTreeClassifier(criterion="entropy", max_depth=5)
     t3 = t3.fit(h_train, y_train)
     labels_predicted = t3.predict(h_val)
-    print("Accuracy of T3:", metrics.accuracy_score(y_val, labels_predicted))
+    print("Accuracy of T3:", accuracy_calculator(y_val, labels_predicted))
 
     # max depth = 5, split criteria = gini
     t4 = DecisionTreeClassifier(criterion="gini", max_depth=5)
     t4 = t4.fit(h_train, y_train)
     labels_predicted = t4.predict(h_val)
-    print("Accuracy of T4:", metrics.accuracy_score(y_val, labels_predicted))
+    print("Accuracy of T4:", accuracy_calculator(y_val, labels_predicted))
 
     # max depth = 10, split criteria = entropy
     t5 = DecisionTreeClassifier(criterion="entropy", max_depth=10)
     t5 = t5.fit(h_train, y_train)
     labels_predicted = t5.predict(h_val)
-    print("Accuracy of T5:", metrics.accuracy_score(y_val, labels_predicted))
+    print("Accuracy of T5:", accuracy_calculator(y_val, labels_predicted))
 
     # max depth = 10, split criteria = gini
     t6 = DecisionTreeClassifier(criterion="gini", max_depth=10)
     t6 = t6.fit(h_train, y_train)
     labels_predicted = t6.predict(h_val)
-    print("Accuracy of T6:", metrics.accuracy_score(y_val, labels_predicted))
+    print("Accuracy of T6:", accuracy_calculator(y_val, labels_predicted))
 
     # max depth = 15, split criteria = entropy
     t7 = DecisionTreeClassifier(criterion="entropy", max_depth=15)
     t7 = t7.fit(h_train, y_train)
     labels_predicted = t7.predict(h_val)
-    print("Accuracy of T7:", metrics.accuracy_score(y_val, labels_predicted))
+    print("Accuracy of T7:", accuracy_calculator(y_val, labels_predicted))
 
     # max depth = 15, split criteria = gini
     t8 = DecisionTreeClassifier(criterion="gini", max_depth=15)
     t8 = t8.fit(h_train, y_train)
     labels_predicted = t8.predict(h_val)
-    print("Accuracy of T8:", metrics.accuracy_score(y_val, labels_predicted))
+    print("Accuracy of T8:", accuracy_calculator(y_val, labels_predicted))
 
     # max depth = 20, split criteria = entropy
     t9 = DecisionTreeClassifier(criterion="entropy", max_depth=20)
     t9 = t9.fit(h_train, y_train)
     labels_predicted = t9.predict(h_val)
-    print("Accuracy of T9:", metrics.accuracy_score(y_val, labels_predicted))
+    print("Accuracy of T9:", accuracy_calculator(y_val, labels_predicted))
 
     # max depth = 20, split criteria = gini
     t10 = DecisionTreeClassifier(criterion="gini", max_depth=20)
     t10 = t10.fit(h_train, y_train)
     labels_predicted = t10.predict(h_val)
-    print("Accuracy of T10:", metrics.accuracy_score(y_val, labels_predicted))
+    print("Accuracy of T10:", accuracy_calculator(y_val, labels_predicted))
 
 
     
