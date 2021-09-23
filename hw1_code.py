@@ -1,4 +1,4 @@
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.tree import DecisionTreeClassifier, export_graphviz
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
 import graphviz
@@ -29,10 +29,11 @@ def load_data():
     # now vectorize the data
     vectorizer = TfidfVectorizer()
     h_train_vectorized = vectorizer.fit_transform(h_train)
+    feature_names = vectorizer.get_feature_names()
     h_test_vectorized = vectorizer.transform(h_test)
     h_val_vectorized = vectorizer.transform(h_validation)
 
-    return h_train_vectorized, h_test_vectorized, h_val_vectorized, y_train, y_test, y_validation
+    return h_train_vectorized, h_test_vectorized, h_val_vectorized, y_train, y_test, y_validation, feature_names
 
 def accuracy_calculator(y_true, y_pred) -> float:
     '''
@@ -56,67 +57,103 @@ def accuracy_calculator(y_true, y_pred) -> float:
 
 
 def select_data():
-    h_train, h_test, h_val, y_train, y_test, y_val = load_data()
-    
+    h_train, h_test, h_val, y_train, y_test, y_val, feature_names = load_data()
+
+    tree_to_accuracy = {}   # maps decision trees to their accuracy scores
+
     # max_depth = 3, split_criteria = information gain
     t1 = DecisionTreeClassifier(criterion="entropy", max_depth=3)
     t1 = t1.fit(h_train, y_train)
     labels_predicted = t1.predict(h_val)
-    print("Accuracy of T1:", accuracy_calculator(y_val, labels_predicted))
+    accuracy = accuracy_calculator(y_val, labels_predicted)
+    print("Accuracy of T1:", )
+    tree_to_accuracy[t1] = accuracy
 
     # max_depth = 3, split criteria = gini
     t2 = DecisionTreeClassifier(criterion="gini", max_depth=3)
     t2 = t2.fit(h_train, y_train)
     labels_predicted = t2.predict(h_val)
-    print("Accuracy of T2:", accuracy_calculator(y_val, labels_predicted))
+    accuracy = accuracy_calculator(y_val, labels_predicted)
+    print("Accuracy of T2:", accuracy)
+    tree_to_accuracy[t2] = accuracy
 
     # max depth = 5, split criteria = entropy
     t3 = DecisionTreeClassifier(criterion="entropy", max_depth=5)
     t3 = t3.fit(h_train, y_train)
     labels_predicted = t3.predict(h_val)
-    print("Accuracy of T3:", accuracy_calculator(y_val, labels_predicted))
+    accuracy = accuracy_calculator(y_val, labels_predicted)
+    print("Accuracy of T3:", accuracy)
+    tree_to_accuracy[t3] = accuracy
 
     # max depth = 5, split criteria = gini
     t4 = DecisionTreeClassifier(criterion="gini", max_depth=5)
     t4 = t4.fit(h_train, y_train)
     labels_predicted = t4.predict(h_val)
-    print("Accuracy of T4:", accuracy_calculator(y_val, labels_predicted))
+    accuracy = accuracy_calculator(y_val, labels_predicted)
+    print("Accuracy of T4:", accuracy)
+    tree_to_accuracy[t4] = accuracy
 
     # max depth = 10, split criteria = entropy
     t5 = DecisionTreeClassifier(criterion="entropy", max_depth=10)
     t5 = t5.fit(h_train, y_train)
     labels_predicted = t5.predict(h_val)
-    print("Accuracy of T5:", accuracy_calculator(y_val, labels_predicted))
+    accuracy = accuracy_calculator(y_val, labels_predicted)
+    print("Accuracy of T5:", accuracy)
+    tree_to_accuracy[t5] = accuracy
 
     # max depth = 10, split criteria = gini
     t6 = DecisionTreeClassifier(criterion="gini", max_depth=10)
     t6 = t6.fit(h_train, y_train)
     labels_predicted = t6.predict(h_val)
-    print("Accuracy of T6:", accuracy_calculator(y_val, labels_predicted))
+    accuracy = accuracy_calculator(y_val, labels_predicted)
+    print("Accuracy of T6:", accuracy)
+    tree_to_accuracy[t6] = accuracy
 
     # max depth = 15, split criteria = entropy
     t7 = DecisionTreeClassifier(criterion="entropy", max_depth=15)
     t7 = t7.fit(h_train, y_train)
     labels_predicted = t7.predict(h_val)
-    print("Accuracy of T7:", accuracy_calculator(y_val, labels_predicted))
+    accuracy = accuracy_calculator(y_val, labels_predicted)
+    print("Accuracy of T7:", accuracy)
+    tree_to_accuracy[t7] = accuracy
 
     # max depth = 15, split criteria = gini
     t8 = DecisionTreeClassifier(criterion="gini", max_depth=15)
     t8 = t8.fit(h_train, y_train)
     labels_predicted = t8.predict(h_val)
-    print("Accuracy of T8:", accuracy_calculator(y_val, labels_predicted))
+    accuracy = accuracy_calculator(y_val, labels_predicted)
+    print("Accuracy of T8:", accuracy)
+    tree_to_accuracy[t8] = accuracy
 
     # max depth = 20, split criteria = entropy
     t9 = DecisionTreeClassifier(criterion="entropy", max_depth=20)
     t9 = t9.fit(h_train, y_train)
     labels_predicted = t9.predict(h_val)
-    print("Accuracy of T9:", accuracy_calculator(y_val, labels_predicted))
+    accuracy = accuracy_calculator(y_val, labels_predicted)
+    print("Accuracy of T9:", accuracy)
+    tree_to_accuracy[t9] = accuracy
 
     # max depth = 20, split criteria = gini
     t10 = DecisionTreeClassifier(criterion="gini", max_depth=20)
     t10 = t10.fit(h_train, y_train)
     labels_predicted = t10.predict(h_val)
-    print("Accuracy of T10:", accuracy_calculator(y_val, labels_predicted))
+    accuracy = accuracy_calculator(y_val, labels_predicted)
+    print("Accuracy of T10:", accuracy)
+    tree_to_accuracy[t10] = accuracy
+
+    best_tree = max(tree_to_accuracy, key=tree_to_accuracy.get)
+
+    # visualize the best tree
+    dot_data = export_graphviz(
+        decision_tree=best_tree, 
+        max_depth=2, 
+        feature_names=feature_names, 
+        class_names=y_train, 
+        filled=True
+    )
+
+    graph = graphviz.Source(dot_data, format="png")
+    graph.render("decision_tree_graphivz")
 
     
 

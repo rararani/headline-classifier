@@ -1,0 +1,32 @@
+digraph Tree {
+node [shape=box, style="filled", color="black"] ;
+0 [label="trump <= 0.056\nentropy = 0.971\nsamples = 2286\nvalue = [913, 1373]\nclass = real", fillcolor="#bddef6"] ;
+1 [label="trumps <= 0.165\nentropy = 0.901\nsamples = 744\nvalue = [508, 236]\nclass = real", fillcolor="#f1bc95"] ;
+0 -> 1 [labeldistance=2.5, labelangle=45, headlabel="True"] ;
+2 [label="trump <= 0.051\nentropy = 0.633\nsamples = 602\nvalue = [506, 96]\nclass = real", fillcolor="#ea995f"] ;
+1 -> 2 ;
+3 [label="(...)", fillcolor="#C0C0C0"] ;
+2 -> 3 ;
+4 [label="(...)", fillcolor="#C0C0C0"] ;
+2 -> 4 ;
+5 [label="clean <= 0.212\nentropy = 0.107\nsamples = 142\nvalue = [2, 140]\nclass = real", fillcolor="#3c9ee5"] ;
+1 -> 5 ;
+6 [label="(...)", fillcolor="#C0C0C0"] ;
+5 -> 6 ;
+7 [label="(...)", fillcolor="#C0C0C0"] ;
+5 -> 7 ;
+8 [label="hillary <= 0.07\nentropy = 0.831\nsamples = 1542\nvalue = [405, 1137]\nclass = real", fillcolor="#80c0ee"] ;
+0 -> 8 [labeldistance=2.5, labelangle=-45, headlabel="False"] ;
+9 [label="donald <= 0.117\nentropy = 0.789\nsamples = 1468\nvalue = [347, 1121]\nclass = real", fillcolor="#76bbed"] ;
+8 -> 9 ;
+10 [label="(...)", fillcolor="#C0C0C0"] ;
+9 -> 10 ;
+11 [label="(...)", fillcolor="#C0C0C0"] ;
+9 -> 11 ;
+12 [label="clinton <= 0.249\nentropy = 0.753\nsamples = 74\nvalue = [58, 16]\nclass = real", fillcolor="#eca470"] ;
+8 -> 12 ;
+13 [label="(...)", fillcolor="#C0C0C0"] ;
+12 -> 13 ;
+14 [label="(...)", fillcolor="#C0C0C0"] ;
+12 -> 14 ;
+}
