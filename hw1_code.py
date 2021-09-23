@@ -66,7 +66,7 @@ def select_data():
     t1 = t1.fit(h_train, y_train)
     labels_predicted = t1.predict(h_val)
     accuracy = accuracy_calculator(y_val, labels_predicted)
-    print("Accuracy of T1:", )
+    print("Accuracy of T1:", accuracy)
     tree_to_accuracy[t1] = accuracy
 
     # max_depth = 3, split criteria = gini
@@ -154,6 +154,8 @@ def select_data():
 
     graph = graphviz.Source(dot_data, format="png")
     graph.render("decision_tree_graphivz")
+
+    return best_tree
 
     
 
