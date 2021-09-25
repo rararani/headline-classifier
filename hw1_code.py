@@ -1,24 +1,32 @@
-from typing import List
+from logging import root
+from types import CodeType
+from typing import Dict, List
+from scipy.sparse import base
+from scipy.sparse.construct import rand
 from scipy.sparse.csr import csr_matrix
 from scipy.stats import entropy
 from sklearn.tree import DecisionTreeClassifier, export_graphviz
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.model_selection import train_test_split
 import graphviz
+import numpy as np
 
 REAL = "real"
 FAKE = "fake"
+
 
 def read_file(file_name: str) -> List[str]:
     file = open(file_name, "r")
     data = [line.strip() for line in file]
     return data
 
+
 def process_array(arr: List[str]) -> List[str]:
     new_arr = []
     for i in arr:
         new_arr.extend(i.split())
     return new_arr.copy()
+
 
 def load_data(real_data: str, fake_data: str):
     real = read_file(real_data)
@@ -27,20 +35,24 @@ def load_data(real_data: str, fake_data: str):
     labels.extend([FAKE] * len(fake))
     data = real + fake
 
-    x_train, x_test, y_train, y_test = train_test_split(data, labels, train_size=0.7, random_state=0)
-    x_test, x_val, y_test, y_val = train_test_split(x_test, y_test, test_size=0.5, random_state=0)
+    x_train, x_test, y_train, y_test = train_test_split(
+        data, labels, train_size=0.7, random_state=0)
+    x_test, x_val, y_test, y_val = train_test_split(
+        x_test, y_test, test_size=0.5, random_state=0)
 
-    vectorizer = TfidfVectorizer()
+    vectorizer = CountVectorizer()
     x_train = vectorizer.fit_transform(x_train)
     x_val = vectorizer.transform(x_val)
 
-    return x_train, x_val, y_train, y_val, vectorizer.get_feature_names(), process_array(real), process_array(fake)
+    return x_train, x_val, y_train, y_val, vectorizer
+
 
 def select_data(x_train: csr_matrix, x_val: csr_matrix, y_train: List[str], y_val: List[str]) -> DecisionTreeClassifier:
     tree_to_accuracy = {}   # maps decision trees to their accuracy scores
 
     # max_depth = 3, split_criteria = information gain
-    t1 = DecisionTreeClassifier(criterion="entropy", max_depth=3)
+    t1 = DecisionTreeClassifier(
+        criterion="entropy", max_depth=3, random_state=None)
     t1 = t1.fit(x_train, y_train)
     labels_predicted = t1.predict(x_val)
     accuracy = accuracy_calculator(y_val, labels_predicted)
@@ -48,7 +60,7 @@ def select_data(x_train: csr_matrix, x_val: csr_matrix, y_train: List[str], y_va
     tree_to_accuracy[(t1, 1, t1.criterion, t1.max_depth)] = accuracy
 
     # max_depth = 3, split criteria = gini
-    t2 = DecisionTreeClassifier(criterion="gini", max_depth=3)
+    t2 = DecisionTreeClassifier(criterion="gini", max_depth=3, random_state=None)
     t2 = t2.fit(x_train, y_train)
     labels_predicted = t2.predict(x_val)
     accuracy = accuracy_calculator(y_val, labels_predicted)
@@ -56,7 +68,8 @@ def select_data(x_train: csr_matrix, x_val: csr_matrix, y_train: List[str], y_va
     tree_to_accuracy[(t2, 2, t2.criterion, t2.max_depth)] = accuracy
 
     # max depth = 5, split criteria = entropy
-    t3 = DecisionTreeClassifier(criterion="entropy", max_depth=5)
+    t3 = DecisionTreeClassifier(
+        criterion="entropy", max_depth=5, random_state=None)
     t3 = t3.fit(x_train, y_train)
     labels_predicted = t3.predict(x_val)
     accuracy = accuracy_calculator(y_val, labels_predicted)
@@ -64,7 +77,7 @@ def select_data(x_train: csr_matrix, x_val: csr_matrix, y_train: List[str], y_va
     tree_to_accuracy[(t3, 3, t3.criterion, t3.max_depth)] = accuracy
 
     # max depth = 5, split criteria = gini
-    t4 = DecisionTreeClassifier(criterion="gini", max_depth=5)
+    t4 = DecisionTreeClassifier(criterion="gini", max_depth=5, random_state=None)
     t4 = t4.fit(x_train, y_train)
     labels_predicted = t4.predict(x_val)
     accuracy = accuracy_calculator(y_val, labels_predicted)
@@ -72,7 +85,8 @@ def select_data(x_train: csr_matrix, x_val: csr_matrix, y_train: List[str], y_va
     tree_to_accuracy[(t4, 4, t4.criterion, t4.max_depth)] = accuracy
 
     # max depth = 10, split criteria = entropy
-    t5 = DecisionTreeClassifier(criterion="entropy", max_depth=10)
+    t5 = DecisionTreeClassifier(
+        criterion="entropy", max_depth=10, random_state=None)
     t5 = t5.fit(x_train, y_train)
     labels_predicted = t5.predict(x_val)
     accuracy = accuracy_calculator(y_val, labels_predicted)
@@ -80,7 +94,7 @@ def select_data(x_train: csr_matrix, x_val: csr_matrix, y_train: List[str], y_va
     tree_to_accuracy[(t5, 5, t5.criterion, t5.max_depth)] = accuracy
 
     # max depth = 10, split criteria = gini
-    t6 = DecisionTreeClassifier(criterion="gini", max_depth=10)
+    t6 = DecisionTreeClassifier(criterion="gini", max_depth=10, random_state=None)
     t6 = t6.fit(x_train, y_train)
     labels_predicted = t6.predict(x_val)
     accuracy = accuracy_calculator(y_val, labels_predicted)
@@ -88,7 +102,8 @@ def select_data(x_train: csr_matrix, x_val: csr_matrix, y_train: List[str], y_va
     tree_to_accuracy[(t6, 6, t6.criterion, t6.max_depth)] = accuracy
 
     # max depth = 15, split criteria = entropy
-    t7 = DecisionTreeClassifier(criterion="entropy", max_depth=15)
+    t7 = DecisionTreeClassifier(
+        criterion="entropy", max_depth=15, random_state=None)
     t7 = t7.fit(x_train, y_train)
     labels_predicted = t7.predict(x_val)
     accuracy = accuracy_calculator(y_val, labels_predicted)
@@ -96,7 +111,7 @@ def select_data(x_train: csr_matrix, x_val: csr_matrix, y_train: List[str], y_va
     tree_to_accuracy[(t7, 7, t7.criterion, t7.max_depth)] = accuracy
 
     # max depth = 15, split criteria = gini
-    t8 = DecisionTreeClassifier(criterion="gini", max_depth=15)
+    t8 = DecisionTreeClassifier(criterion="gini", max_depth=15, random_state=None)
     t8 = t8.fit(x_train, y_train)
     labels_predicted = t8.predict(x_val)
     accuracy = accuracy_calculator(y_val, labels_predicted)
@@ -104,7 +119,8 @@ def select_data(x_train: csr_matrix, x_val: csr_matrix, y_train: List[str], y_va
     tree_to_accuracy[(t8, 8, t8.criterion, t8.max_depth)] = accuracy
 
     # max depth = 20, split criteria = entropy
-    t9 = DecisionTreeClassifier(criterion="entropy", max_depth=20)
+    t9 = DecisionTreeClassifier(
+        criterion="entropy", max_depth=20, random_state=None)
     t9 = t9.fit(x_train, y_train)
     labels_predicted = t9.predict(x_val)
     accuracy = accuracy_calculator(y_val, labels_predicted)
@@ -112,7 +128,8 @@ def select_data(x_train: csr_matrix, x_val: csr_matrix, y_train: List[str], y_va
     tree_to_accuracy[(t9, 9, t9.criterion, t9.max_depth)] = accuracy
 
     # max depth = 20, split criteria = gini
-    t10 = DecisionTreeClassifier(criterion="gini", max_depth=20)
+    t10 = DecisionTreeClassifier(
+        criterion="gini", max_depth=20, random_state=None)
     t10 = t10.fit(x_train, y_train)
     labels_predicted = t10.predict(x_val)
     accuracy = accuracy_calculator(y_val, labels_predicted)
@@ -128,19 +145,52 @@ def select_data(x_train: csr_matrix, x_val: csr_matrix, y_train: List[str], y_va
 
     return best_tree[0]
 
-def compute_information_gain(keyword: str, real: List[str], fake: List[str]) -> float:
-    total = (len(real) + len(fake))
-    prob_real = len(real) / total   # P(Y=real)
-    root_entropy = entropy([prob_real, 1 - prob_real], base=2)  # H(Y)
 
-    prob_keyword = (real.count(keyword) + fake.count(keyword)) / total  # P(X=keyword)
-    prob_real_keyword = real.count(keyword) / total # P(X=keyword, Y=real)
-    prob_fake_keyword = fake.count(keyword) / total # P(X=keyword, Y=fake)
-    cond_prob_real = prob_real_keyword / prob_keyword   # P(Y=real | X=keyword)
-    cond_prob_fake = prob_fake_keyword / prob_keyword   # P(Y=fake | X=keyword)
-    cond_entropy = entropy([cond_prob_real, cond_prob_fake], base=2)    # H(Y|X=keyword)
+def compute_information_gain(keyword: int, clf: DecisionTreeClassifier, keyword_to_encoding: Dict[str, int]):
+    keyword_code = keyword_to_encoding[keyword]
 
-    return root_entropy - cond_entropy
+    children_left = clf.tree_.children_left
+    children_right = clf.tree_.children_right
+    feature = clf.tree_.feature
+
+    stack = [0]  # start with the root node id (0) and its depth (0)
+    while len(stack) > 0:
+        # `pop` ensures each node is only visited once
+        i = stack.pop()
+        code = feature[i]
+        # print("Code: {} Key_code: {} Eq: {}".format(code, keyword_code, code == keyword_code))
+        if code == keyword_code:
+            left_id = children_left[i]
+            right_id = children_right[i]
+            node_id = i
+            break
+
+        # If the left and right child of a node is not the same we have a split
+        # node
+        is_split_node = children_left[i] != children_right[i]
+        # If a split node, append left and right children and depth to `stack`
+        # so we can loop through them
+        if is_split_node:
+            stack.append(children_left[i])
+            stack.append(children_right[i])
+
+    if tree.criterion == "gini":
+        if left_id < 0 or right_id < 0:
+            return 2 * tree.tree_.impurity[node_id]
+
+        root_entropy = 2 * tree.tree_.impurity[node_id]
+        left_entropy = 2 * tree.tree_.impurity[left_id]
+        right_entropy = 2 * tree.tree_.impurity[right_id]
+        prob_left = tree.tree_.n_node_samples[left_id] / tree.tree_.n_node_samples[node_id]
+        prob_right = tree.tree_.n_node_samples[right_id] / tree.tree_.n_node_samples[node_id]
+
+        return root_entropy - (prob_left * left_entropy + prob_right * right_entropy)    
+    else:
+        return tree.tree_.impurity[node_id]
+
+
+        
+
 
 def accuracy_calculator(y_true, y_pred) -> float:
     '''
@@ -163,13 +213,13 @@ def accuracy_calculator(y_true, y_pred) -> float:
     return score/total
 
 if __name__ == "__main__":
-    x_train, x_val, y_train, y_val, features, real, fake = load_data("clean_real.txt", "clean_fake.txt")
+    x_train, x_val, y_train, y_val, vectorizer = load_data("clean_real.txt", "clean_fake.txt")
     tree = select_data(x_train, x_val, y_train, y_val)
     
     dot_data = export_graphviz(
         decision_tree=tree, 
         max_depth=2, 
-        feature_names=features, 
+        feature_names=vectorizer.get_feature_names(), 
         class_names=y_train, 
         filled=True
     )
@@ -177,10 +227,8 @@ if __name__ == "__main__":
     graph = graphviz.Source(dot_data, format="png")
     graph.render("decision_tree_graphivz")
 
-    info_gain1 = compute_information_gain("trump", real, fake)
-    info_gain2 = compute_information_gain("market", real, fake)
-    info_gain3 = compute_information_gain("the", real, fake)
-
-    print("The information gain for the word: trump is", info_gain1)
-    print("The information gain for the word: market is", info_gain2)
-    print("The information gain for the word: the is", info_gain3)
+    keyword_to_encoding = vectorizer.vocabulary_
+    encoding_to_keyword = {value: key for (key, value) in keyword_to_encoding.items()}
+    
+    info_gain1 = compute_information_gain("hillary", tree, keyword_to_encoding)
+    print(info_gain1)
