@@ -1,9 +1,7 @@
-from itertools import count
-from typing import List, Optional
-from numpy.lib.function_base import select
-from numpy.lib.type_check import real
+from typing import List
+from scipy.sparse.construct import random
 from sklearn.tree import DecisionTreeClassifier, export_graphviz
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
 import graphviz
 import math
@@ -17,22 +15,20 @@ def read_file(file_name: str) -> List[str]:
     file.close()
     return data
 
-def load_data():
-    headlines = read_file("clean_real.txt").copy()
-    labels = [REAL] * len(headlines)
-    headlines.extend(read_file("clean_fake.txt").copy())
-    labels.extend([FAKE] * (len(headlines) - len(labels)))
+def load_data(real_data: str, fake_data: str):
+    data = read_file(real_data)
+    labels = [REAL] * len(data)
+    data.extend(read_file(fake_data))
+    labels.extend([FAKE] * len(data[len(labels):]))
 
-    # now we want to split the data into training, test, and validation
-    x_train, x_test, y_train, y_test = train_test_split(headlines, labels, train_size=0.7)
-    x_test, x_validation, y_test, y_validation = train_test_split(x_test, y_test, train_size=0.5)
+    x_train, x_test, y_train, y_test = train_test_split(data, labels, train_size=0.7, random_state=0)
+    x_test, x_val, y_test, y_val = train_test_split(x_test, y_test, test_size=0.5, random_state=0)
 
-    # now vectorize the data
-    vectorizer = CountVectorizer()
-    x_train_vectorized = vectorizer.fit_transform(x_train)
-    x_val_vectorized = vectorizer.transform(x_validation)
+    vectorizer = TfidfVectorizer()
+    x_train = vectorizer.fit_transform(x_train)
+    x_val = vectorizer.transform(x_val)
 
-    return x_train_vectorized, x_val_vectorized, y_train, y_validation, vectorizer
+    return x_train, x_val, y_train, y_val
 
 def accuracy_calculator(y_true, y_pred) -> float:
     '''
@@ -56,7 +52,7 @@ def accuracy_calculator(y_true, y_pred) -> float:
 
 
 def select_data() -> DecisionTreeClassifier:
-    x_train, x_val, y_train, y_val, vectorizer = load_data()
+    x_train, x_val, y_train, y_val, vectorizer, real_train, fake_train = load_data()
 
     tree_to_accuracy = {}   # maps decision trees to their accuracy scores
 
@@ -154,29 +150,53 @@ def select_data() -> DecisionTreeClassifier:
     graph = graphviz.Source(dot_data, format="png")
     graph.render("decision_tree_graphivz")
 
-    return best_tree, vectorizer
+    return best_tree, vectorizer, real_train, fake_train
 
-def compute_information_gain(id: int, tree: DecisionTreeClassifier, vectorizer: CountVectorizer):
-    root_entropy = tree.tree_.impurity[id]
-    left = tree.tree_.children_left[id]
-    right = tree.tree_.children_right[id]
-    left_entropy = tree.tree_.impurity[left]
-    right_entropy = tree.tree_.impurity[right]
+# def entropy_calculator(prob1: float, prob2: float) -> float:
+#     return -1 * (prob1 * math.log2(prob1) + prob2 * math.log2(prob2))
 
-    left_split = tree.tree_.n_node_samples[left] / tree.tree_.n_node_samples[id]
-    right_split = tree.tree_.n_node_samples[right] / tree.tree_.n_node_samples[id]
+# def compute_information_gain(word: str, real_train: List[str], fake_train: List[str]) -> float:
+#     # first calculate P(Y = real) and P(Y = fake)
+#     prob_real = len(real_train) / (len(real_train) + len(fake_train))
+#     # H(Y)
+#     root_entropy = entropy_calculator(prob_real, 1 - prob_real)
+#     # calculate P(Y = real, X = word)
+#     prob_real_word = real_train.count(word) / (len(real_train) + len(fake_train))
+#     # next calculate P(X = word)
+#     prob_word = (real_train.count(word) + fake_train.count(word)) / (len(real_train) + len(fake_train))
+#     # P(Y = real|X = word)
+#     cond_prob_real = prob_real_word / prob_word
+#     # P(Y = fake, X = word)
+#     prob_fake_word = fake_train.count(word) / (len(real_train) + len(fake_train))
+#     # P(Y = fake|X = word)
+#     cond_prob_fake = prob_fake_word / prob_word
+#     # H(Y|X = word)
+#     cond_entropy = entropy_calculator(cond_prob_real, cond_prob_fake)
 
-    info_gain = root_entropy - (left_split * left_entropy + right_split * right_entropy)
+#     return root_entropy - cond_entropy
 
-    features_to_encoding = vectorizer.vocabulary_
-    encoding_to_features = {v: k for k, v in features_to_encoding.items()}
 
-    print("The information gain of feature: '{}' is {}".format(encoding_to_features[tree.tree_.feature[id]], info_gain))
 
-    return info_gain, left, right
+
+# def compute_information_gain(id: int, tree: DecisionTreeClassifier, vectorizer: CountVectorizer):
+#     root_entropy = tree.tree_.impurity[id]
+#     left = tree.tree_.children_left[id]
+#     right = tree.tree_.children_right[id]
+#     left_entropy = tree.tree_.impurity[left]
+#     right_entropy = tree.tree_.impurity[right]
+
+#     left_split = tree.tree_.n_node_samples[left] / tree.tree_.n_node_samples[id]
+#     right_split = tree.tree_.n_node_samples[right] / tree.tree_.n_node_samples[id]
+
+#     info_gain = root_entropy - (left_split * left_entropy + right_split * right_entropy)
+
+#     features_to_encoding = vectorizer.vocabulary_
+#     encoding_to_features = {v: k for k, v in features_to_encoding.items()}
+
+#     print("The information gain of feature: '{}' is {}".format(encoding_to_features[tree.tree_.feature[id]], info_gain))
+
+#     return info_gain, left, right
 
 if __name__ == "__main__":
-    tree, vectorizer = select_data()
-    info_gain, left, right = compute_information_gain(id=0, tree=tree, vectorizer=vectorizer)
-    info_gain, left2, right2 = compute_information_gain(id=left, tree=tree, vectorizer=vectorizer)
-    info_gain, left3, right3 = compute_information_gain(id=right, tree=tree, vectorizer=vectorizer)
+    x_train, x_val, y_train, y_val = load_data("clean_real.txt", "clean_fake.txt")
+    print(x_val)
