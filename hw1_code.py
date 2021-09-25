@@ -52,7 +52,7 @@ def select_data(x_train: csr_matrix, x_val: csr_matrix, y_train: List[str], y_va
 
     # max_depth = 3, split_criteria = information gain
     t1 = DecisionTreeClassifier(
-        criterion="entropy", max_depth=3, random_state=None)
+        criterion="entropy", max_depth=3, random_state=0)
     t1 = t1.fit(x_train, y_train)
     labels_predicted = t1.predict(x_val)
     accuracy = accuracy_calculator(y_val, labels_predicted)
@@ -60,7 +60,7 @@ def select_data(x_train: csr_matrix, x_val: csr_matrix, y_train: List[str], y_va
     tree_to_accuracy[(t1, 1, t1.criterion, t1.max_depth)] = accuracy
 
     # max_depth = 3, split criteria = gini
-    t2 = DecisionTreeClassifier(criterion="gini", max_depth=3, random_state=None)
+    t2 = DecisionTreeClassifier(criterion="gini", max_depth=3, random_state=0)
     t2 = t2.fit(x_train, y_train)
     labels_predicted = t2.predict(x_val)
     accuracy = accuracy_calculator(y_val, labels_predicted)
@@ -69,7 +69,7 @@ def select_data(x_train: csr_matrix, x_val: csr_matrix, y_train: List[str], y_va
 
     # max depth = 5, split criteria = entropy
     t3 = DecisionTreeClassifier(
-        criterion="entropy", max_depth=5, random_state=None)
+        criterion="entropy", max_depth=5, random_state=0)
     t3 = t3.fit(x_train, y_train)
     labels_predicted = t3.predict(x_val)
     accuracy = accuracy_calculator(y_val, labels_predicted)
@@ -77,7 +77,7 @@ def select_data(x_train: csr_matrix, x_val: csr_matrix, y_train: List[str], y_va
     tree_to_accuracy[(t3, 3, t3.criterion, t3.max_depth)] = accuracy
 
     # max depth = 5, split criteria = gini
-    t4 = DecisionTreeClassifier(criterion="gini", max_depth=5, random_state=None)
+    t4 = DecisionTreeClassifier(criterion="gini", max_depth=5, random_state=0)
     t4 = t4.fit(x_train, y_train)
     labels_predicted = t4.predict(x_val)
     accuracy = accuracy_calculator(y_val, labels_predicted)
@@ -86,7 +86,7 @@ def select_data(x_train: csr_matrix, x_val: csr_matrix, y_train: List[str], y_va
 
     # max depth = 10, split criteria = entropy
     t5 = DecisionTreeClassifier(
-        criterion="entropy", max_depth=10, random_state=None)
+        criterion="entropy", max_depth=10, random_state=0)
     t5 = t5.fit(x_train, y_train)
     labels_predicted = t5.predict(x_val)
     accuracy = accuracy_calculator(y_val, labels_predicted)
@@ -94,7 +94,7 @@ def select_data(x_train: csr_matrix, x_val: csr_matrix, y_train: List[str], y_va
     tree_to_accuracy[(t5, 5, t5.criterion, t5.max_depth)] = accuracy
 
     # max depth = 10, split criteria = gini
-    t6 = DecisionTreeClassifier(criterion="gini", max_depth=10, random_state=None)
+    t6 = DecisionTreeClassifier(criterion="gini", max_depth=10, random_state=0)
     t6 = t6.fit(x_train, y_train)
     labels_predicted = t6.predict(x_val)
     accuracy = accuracy_calculator(y_val, labels_predicted)
@@ -103,7 +103,7 @@ def select_data(x_train: csr_matrix, x_val: csr_matrix, y_train: List[str], y_va
 
     # max depth = 15, split criteria = entropy
     t7 = DecisionTreeClassifier(
-        criterion="entropy", max_depth=15, random_state=None)
+        criterion="entropy", max_depth=15, random_state=0)
     t7 = t7.fit(x_train, y_train)
     labels_predicted = t7.predict(x_val)
     accuracy = accuracy_calculator(y_val, labels_predicted)
@@ -111,7 +111,7 @@ def select_data(x_train: csr_matrix, x_val: csr_matrix, y_train: List[str], y_va
     tree_to_accuracy[(t7, 7, t7.criterion, t7.max_depth)] = accuracy
 
     # max depth = 15, split criteria = gini
-    t8 = DecisionTreeClassifier(criterion="gini", max_depth=15, random_state=None)
+    t8 = DecisionTreeClassifier(criterion="gini", max_depth=15, random_state=0)
     t8 = t8.fit(x_train, y_train)
     labels_predicted = t8.predict(x_val)
     accuracy = accuracy_calculator(y_val, labels_predicted)
@@ -120,7 +120,7 @@ def select_data(x_train: csr_matrix, x_val: csr_matrix, y_train: List[str], y_va
 
     # max depth = 20, split criteria = entropy
     t9 = DecisionTreeClassifier(
-        criterion="entropy", max_depth=20, random_state=None)
+        criterion="entropy", max_depth=20, random_state=0)
     t9 = t9.fit(x_train, y_train)
     labels_predicted = t9.predict(x_val)
     accuracy = accuracy_calculator(y_val, labels_predicted)
@@ -129,7 +129,7 @@ def select_data(x_train: csr_matrix, x_val: csr_matrix, y_train: List[str], y_va
 
     # max depth = 20, split criteria = gini
     t10 = DecisionTreeClassifier(
-        criterion="gini", max_depth=20, random_state=None)
+        criterion="gini", max_depth=20, random_state=0)
     t10 = t10.fit(x_train, y_train)
     labels_predicted = t10.predict(x_val)
     accuracy = accuracy_calculator(y_val, labels_predicted)
@@ -158,7 +158,6 @@ def compute_information_gain(keyword: int, clf: DecisionTreeClassifier, keyword_
         # `pop` ensures each node is only visited once
         i = stack.pop()
         code = feature[i]
-        # print("Code: {} Key_code: {} Eq: {}".format(code, keyword_code, code == keyword_code))
         if code == keyword_code:
             left_id = children_left[i]
             right_id = children_right[i]
@@ -230,5 +229,5 @@ if __name__ == "__main__":
     keyword_to_encoding = vectorizer.vocabulary_
     encoding_to_keyword = {value: key for (key, value) in keyword_to_encoding.items()}
     
-    info_gain1 = compute_information_gain("hillary", tree, keyword_to_encoding)
+    info_gain1 = compute_information_gain("the", tree, keyword_to_encoding)
     print(info_gain1)
