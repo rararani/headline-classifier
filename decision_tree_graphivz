@@ -9,7 +9,7 @@ node [shape=box, style="filled", color="black"] ;
 2 -> 3 ;
 18 [label="(...)", fillcolor="#C0C0C0"] ;
 2 -> 18 ;
-49 [label="energy <= 0.22\ngini = 0.027\nsamples = 148\nvalue = [2, 146]\nclass = real", fillcolor="#3c9ee5"] ;
+49 [label="market <= 0.372\ngini = 0.027\nsamples = 148\nvalue = [2, 146]\nclass = real", fillcolor="#3c9ee5"] ;
 1 -> 49 ;
 50 [label="(...)", fillcolor="#C0C0C0"] ;
 49 -> 50 ;
