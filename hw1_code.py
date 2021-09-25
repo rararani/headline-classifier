@@ -1,6 +1,4 @@
 from typing import List
-from numpy.lib.function_base import select
-from scipy.sparse import base
 from scipy.sparse.csr import csr_matrix
 from scipy.stats import entropy
 from sklearn.tree import DecisionTreeClassifier, export_graphviz
@@ -131,70 +129,18 @@ def select_data(x_train: csr_matrix, x_val: csr_matrix, y_train: List[str], y_va
     return best_tree[0]
 
 def compute_information_gain(keyword: str, real: List[str], fake: List[str]) -> float:
-    # total = Decimal(len(real)) + Decimal(len(fake))
     total = (len(real) + len(fake))
-    prob_real = len(real) / total
-    root_entropy = entropy([prob_real, 1 - prob_real], base=2)
+    prob_real = len(real) / total   # P(Y=real)
+    root_entropy = entropy([prob_real, 1 - prob_real], base=2)  # H(Y)
 
-    prob_keyword = (real.count(keyword) + fake.count(keyword)) / total
-    prob_real_keyword = real.count(keyword) / total
-    prob_fake_keyword = fake.count(keyword) / total
-    cond_prob_real = prob_real_keyword / prob_keyword
-    cond_prob_fake = prob_fake_keyword / prob_keyword
-    cond_entropy = entropy([cond_prob_real, cond_prob_fake], base=2)
+    prob_keyword = (real.count(keyword) + fake.count(keyword)) / total  # P(X=keyword)
+    prob_real_keyword = real.count(keyword) / total # P(X=keyword, Y=real)
+    prob_fake_keyword = fake.count(keyword) / total # P(X=keyword, Y=fake)
+    cond_prob_real = prob_real_keyword / prob_keyword   # P(Y=real | X=keyword)
+    cond_prob_fake = prob_fake_keyword / prob_keyword   # P(Y=fake | X=keyword)
+    cond_entropy = entropy([cond_prob_real, cond_prob_fake], base=2)    # H(Y|X=keyword)
 
     return root_entropy - cond_entropy
-
-    
-
-
-
-
-
-# def entropy_calculator(prob1: float, prob2: float) -> float:
-#     return -1 * (prob1 * math.log2(prob1) + prob2 * math.log2(prob2))
-
-# def compute_information_gain(word: str, real_train: List[str], fake_train: List[str]) -> float:
-#     # first calculate P(Y = real) and P(Y = fake)
-#     prob_real = len(real_train) / (len(real_train) + len(fake_train))
-#     # H(Y)
-#     root_entropy = entropy_calculator(prob_real, 1 - prob_real)
-#     # calculate P(Y = real, X = word)
-#     prob_real_word = real_train.count(word) / (len(real_train) + len(fake_train))
-#     # next calculate P(X = word)
-#     prob_word = (real_train.count(word) + fake_train.count(word)) / (len(real_train) + len(fake_train))
-#     # P(Y = real|X = word)
-#     cond_prob_real = prob_real_word / prob_word
-#     # P(Y = fake, X = word)
-#     prob_fake_word = fake_train.count(word) / (len(real_train) + len(fake_train))
-#     # P(Y = fake|X = word)
-#     cond_prob_fake = prob_fake_word / prob_word
-#     # H(Y|X = word)
-#     cond_entropy = entropy_calculator(cond_prob_real, cond_prob_fake)
-
-#     return root_entropy - cond_entropy
-
-
-
-
-# def compute_information_gain(id: int, tree: DecisionTreeClassifier, vectorizer: CountVectorizer):
-#     root_entropy = tree.tree_.impurity[id]
-#     left = tree.tree_.children_left[id]
-#     right = tree.tree_.children_right[id]
-#     left_entropy = tree.tree_.impurity[left]
-#     right_entropy = tree.tree_.impurity[right]
-
-#     left_split = tree.tree_.n_node_samples[left] / tree.tree_.n_node_samples[id]
-#     right_split = tree.tree_.n_node_samples[right] / tree.tree_.n_node_samples[id]
-
-#     info_gain = root_entropy - (left_split * left_entropy + right_split * right_entropy)
-
-#     features_to_encoding = vectorizer.vocabulary_
-#     encoding_to_features = {v: k for k, v in features_to_encoding.items()}
-
-#     print("The information gain of feature: '{}' is {}".format(encoding_to_features[tree.tree_.feature[id]], info_gain))
-
-#     return info_gain, left, right
 
 def accuracy_calculator(y_true, y_pred) -> float:
     '''
