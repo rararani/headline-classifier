@@ -1,34 +1,16 @@
-from logging import root
-from types import CodeType
-from typing import Dict, List
-from scipy.sparse import base
-from scipy.sparse.construct import rand
+
+from typing import List
 from scipy.sparse.csr import csr_matrix
 from scipy.stats import entropy
 from sklearn.tree import DecisionTreeClassifier, export_graphviz
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.model_selection import train_test_split
 import graphviz
-import numpy as np
 
 REAL = "real"
 FAKE = "fake"
 
-
-def read_file(file_name: str) -> List[str]:
-    file = open(file_name, "r")
-    data = [line.strip() for line in file]
-    return data
-
-
-def process_array(arr: List[str]) -> List[str]:
-    new_arr = []
-    for i in arr:
-        new_arr.extend(i.split())
-    return new_arr.copy()
-
-
-def load_data(real_data: str, fake_data: str):
+def load_data(real_data, fake_data):
     real = read_file(real_data)
     labels = [REAL] * len(real)
     fake = read_file(fake_data)
@@ -41,13 +23,13 @@ def load_data(real_data: str, fake_data: str):
         x_test, y_test, test_size=0.5, random_state=0)
 
     vectorizer = CountVectorizer()
-    x_train = vectorizer.fit_transform(x_train)
-    x_val = vectorizer.transform(x_val)
+    x_train_vectorized = vectorizer.fit_transform(x_train)
+    x_val_vectorized = vectorizer.transform(x_val)
 
-    return x_train, x_val, y_train, y_val, vectorizer
+    return x_train_vectorized, x_val_vectorized, x_train, y_train, y_val, vectorizer.get_feature_names()
 
 
-def select_data(x_train: csr_matrix, x_val: csr_matrix, y_train: List[str], y_val: List[str]) -> DecisionTreeClassifier:
+def select_data(x_train, x_val, y_train, y_val):
     tree_to_accuracy = {}   # maps decision trees to their accuracy scores
 
     # max_depth = 3, split_criteria = information gain
@@ -145,53 +127,46 @@ def select_data(x_train: csr_matrix, x_val: csr_matrix, y_train: List[str], y_va
 
     return best_tree[0]
 
+def compute_information_gain(keyword, x_train, y_train):
+    data = combine_array(x_train, y_train)
+    left = []
+    right = []
+    for item in data:
+        if keyword in item[0]:
+            left.append(item)
+        else:
+            right.append(item)
+    
+    n_real = y_train.count(REAL)
+    n_samples = len(x_train)
+    p_real = n_real / n_samples # P(Y=real)
 
-def compute_information_gain(keyword: int, clf: DecisionTreeClassifier, keyword_to_encoding: Dict[str, int]):
-    keyword_code = keyword_to_encoding[keyword]
+    root_entropy = entropy([p_real, 1-p_real], base=2)  # H(Y)
 
-    children_left = clf.tree_.children_left
-    children_right = clf.tree_.children_right
-    feature = clf.tree_.feature
+    n_real_left = 0
+    for item in left:
+        if item[1] == REAL:
+            n_real_left += 1
+    
+    cp_real_left = n_real_left / len(left)
+    left_entropy = entropy([cp_real_left, 1-cp_real_left], base=2)    # H(Y|left)
 
-    stack = [0]  # start with the root node id (0) and its depth (0)
-    while len(stack) > 0:
-        # `pop` ensures each node is only visited once
-        i = stack.pop()
-        code = feature[i]
-        if code == keyword_code:
-            left_id = children_left[i]
-            right_id = children_right[i]
-            node_id = i
-            break
+    n_real_right = 0
+    for item in right:
+        if item[1] == REAL:
+            n_real_right += 1
+    
+    cp_real_right = n_real_right / len(right)
+    right_entropy = entropy([cp_real_right, 1 - cp_real_right], base=2) # H(Y|right)
 
-        # If the left and right child of a node is not the same we have a split
-        # node
-        is_split_node = children_left[i] != children_right[i]
-        # If a split node, append left and right children and depth to `stack`
-        # so we can loop through them
-        if is_split_node:
-            stack.append(children_left[i])
-            stack.append(children_right[i])
+    return root_entropy - (len(left) / len(x_train) * left_entropy + len(right) / len(x_train) * right_entropy)
 
-    if tree.criterion == "gini":
-        if left_id < 0 or right_id < 0:
-            return 2 * tree.tree_.impurity[node_id]
+def read_file(file_name):
+    file = open(file_name, "r")
+    data = [line.strip() for line in file]
+    return data
 
-        root_entropy = 2 * tree.tree_.impurity[node_id]
-        left_entropy = 2 * tree.tree_.impurity[left_id]
-        right_entropy = 2 * tree.tree_.impurity[right_id]
-        prob_left = tree.tree_.n_node_samples[left_id] / tree.tree_.n_node_samples[node_id]
-        prob_right = tree.tree_.n_node_samples[right_id] / tree.tree_.n_node_samples[node_id]
-
-        return root_entropy - (prob_left * left_entropy + prob_right * right_entropy)    
-    else:
-        return tree.tree_.impurity[node_id]
-
-
-        
-
-
-def accuracy_calculator(y_true, y_pred) -> float:
+def accuracy_calculator(y_true, y_pred):
     '''
     y_true - the correct set of labels/outputs
     y_pred - the predicted set of labels/outputs
@@ -211,14 +186,20 @@ def accuracy_calculator(y_true, y_pred) -> float:
     
     return score/total
 
+def combine_array(headlines, labels):
+    arr = []
+    for i in range(len(headlines)):
+        arr.append((headlines[i], labels[i]))
+    return arr.copy()
+
 if __name__ == "__main__":
-    x_train, x_val, y_train, y_val, vectorizer = load_data("clean_real.txt", "clean_fake.txt")
-    tree = select_data(x_train, x_val, y_train, y_val)
+    x_train_vectorized, x_val_vectorized, x_train, y_train, y_val, features = load_data("clean_real.txt", "clean_fake.txt")
+    tree = select_data(x_train_vectorized, x_val_vectorized, y_train, y_val)
     
     dot_data = export_graphviz(
         decision_tree=tree, 
         max_depth=2, 
-        feature_names=vectorizer.get_feature_names(), 
+        feature_names=features, 
         class_names=y_train, 
         filled=True
     )
@@ -226,8 +207,6 @@ if __name__ == "__main__":
     graph = graphviz.Source(dot_data, format="png")
     graph.render("decision_tree_graphivz")
 
-    keyword_to_encoding = vectorizer.vocabulary_
-    encoding_to_keyword = {value: key for (key, value) in keyword_to_encoding.items()}
-    
-    info_gain1 = compute_information_gain("the", tree, keyword_to_encoding)
-    print(info_gain1)
+    print("The information gain of the word: the is", compute_information_gain("the", x_train, y_train))
+    print("The information gain of the word: donald is", compute_information_gain("donald", x_train, y_train))
+    print("The information gain of the word: trumps is", compute_information_gain("trumps", x_train, y_train))
