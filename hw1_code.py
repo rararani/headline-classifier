@@ -38,7 +38,7 @@ def select_data(x_train, x_val, y_train, y_val):
     t1 = t1.fit(x_train, y_train)
     labels_predicted = t1.predict(x_val)
     accuracy = accuracy_calculator(y_val, labels_predicted)
-    print("Accuracy of T1:", accuracy)
+    print("Accuracy of T1 with max_depth=3 and split_criteria IG:", accuracy)
     tree_to_accuracy[(t1, 1, t1.criterion, t1.max_depth)] = accuracy
 
     # max_depth = 3, split criteria = gini
@@ -46,7 +46,7 @@ def select_data(x_train, x_val, y_train, y_val):
     t2 = t2.fit(x_train, y_train)
     labels_predicted = t2.predict(x_val)
     accuracy = accuracy_calculator(y_val, labels_predicted)
-    print("Accuracy of T2:", accuracy)
+    print("Accuracy of T2 with max_depth=3 and split_criteria Gini:", accuracy)
     tree_to_accuracy[(t2, 2, t2.criterion, t2.max_depth)] = accuracy
 
     # max depth = 5, split criteria = entropy
@@ -55,7 +55,7 @@ def select_data(x_train, x_val, y_train, y_val):
     t3 = t3.fit(x_train, y_train)
     labels_predicted = t3.predict(x_val)
     accuracy = accuracy_calculator(y_val, labels_predicted)
-    print("Accuracy of T3:", accuracy)
+    print("Accuracy of T3 with max_depth=5 and split_criteria IG:", accuracy)
     tree_to_accuracy[(t3, 3, t3.criterion, t3.max_depth)] = accuracy
 
     # max depth = 5, split criteria = gini
@@ -63,7 +63,7 @@ def select_data(x_train, x_val, y_train, y_val):
     t4 = t4.fit(x_train, y_train)
     labels_predicted = t4.predict(x_val)
     accuracy = accuracy_calculator(y_val, labels_predicted)
-    print("Accuracy of T4:", accuracy)
+    print("Accuracy of T4 with max_depth=5 and split_criteria Gini:", accuracy)
     tree_to_accuracy[(t4, 4, t4.criterion, t4.max_depth)] = accuracy
 
     # max depth = 10, split criteria = entropy
@@ -72,7 +72,7 @@ def select_data(x_train, x_val, y_train, y_val):
     t5 = t5.fit(x_train, y_train)
     labels_predicted = t5.predict(x_val)
     accuracy = accuracy_calculator(y_val, labels_predicted)
-    print("Accuracy of T5:", accuracy)
+    print("Accuracy of T5 with max_depth=10 and split_criteria IG:", accuracy)
     tree_to_accuracy[(t5, 5, t5.criterion, t5.max_depth)] = accuracy
 
     # max depth = 10, split criteria = gini
@@ -80,7 +80,7 @@ def select_data(x_train, x_val, y_train, y_val):
     t6 = t6.fit(x_train, y_train)
     labels_predicted = t6.predict(x_val)
     accuracy = accuracy_calculator(y_val, labels_predicted)
-    print("Accuracy of T6:", accuracy)
+    print("Accuracy of T6 with max_depth=10 and split_criteria Gini:", accuracy)
     tree_to_accuracy[(t6, 6, t6.criterion, t6.max_depth)] = accuracy
 
     # max depth = 15, split criteria = entropy
@@ -89,7 +89,7 @@ def select_data(x_train, x_val, y_train, y_val):
     t7 = t7.fit(x_train, y_train)
     labels_predicted = t7.predict(x_val)
     accuracy = accuracy_calculator(y_val, labels_predicted)
-    print("Accuracy of T7:", accuracy)
+    print("Accuracy of T7 with max_depth=15 and split_criteria IG:", accuracy)
     tree_to_accuracy[(t7, 7, t7.criterion, t7.max_depth)] = accuracy
 
     # max depth = 15, split criteria = gini
@@ -97,7 +97,7 @@ def select_data(x_train, x_val, y_train, y_val):
     t8 = t8.fit(x_train, y_train)
     labels_predicted = t8.predict(x_val)
     accuracy = accuracy_calculator(y_val, labels_predicted)
-    print("Accuracy of T8:", accuracy)
+    print("Accuracy of T8 with max_depth=15 and split_criteria Gini:", accuracy)
     tree_to_accuracy[(t8, 8, t8.criterion, t8.max_depth)] = accuracy
 
     # max depth = 20, split criteria = entropy
@@ -106,7 +106,7 @@ def select_data(x_train, x_val, y_train, y_val):
     t9 = t9.fit(x_train, y_train)
     labels_predicted = t9.predict(x_val)
     accuracy = accuracy_calculator(y_val, labels_predicted)
-    print("Accuracy of T9:", accuracy)
+    print("Accuracy of T9 with max_depth=20 and split_criteria IG:", accuracy)
     tree_to_accuracy[(t9, 9, t9.criterion, t9.max_depth)] = accuracy
 
     # max depth = 20, split criteria = gini
@@ -115,7 +115,7 @@ def select_data(x_train, x_val, y_train, y_val):
     t10 = t10.fit(x_train, y_train)
     labels_predicted = t10.predict(x_val)
     accuracy = accuracy_calculator(y_val, labels_predicted)
-    print("Accuracy of T10:", accuracy)
+    print("Accuracy of T10 with max_depth=20 and split_criteria Gini:", accuracy)
     tree_to_accuracy[(t10, 10, t10.criterion, t10.max_depth)] = accuracy
 
     best_tree = max(tree_to_accuracy, key=tree_to_accuracy.get)
@@ -208,5 +208,5 @@ if __name__ == "__main__":
     graph.render("decision_tree_graphivz")
 
     print("The information gain of the word: the is", compute_information_gain("the", x_train, y_train))
-    print("The information gain of the word: donald is", compute_information_gain("donald", x_train, y_train))
     print("The information gain of the word: trumps is", compute_information_gain("trumps", x_train, y_train))
+    print("The information gain of the word: donald is", compute_information_gain("donald", x_train, y_train))
